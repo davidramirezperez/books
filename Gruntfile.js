@@ -14,6 +14,9 @@ module.exports = function(grunt) {
 
   // Project configuration.
   grunt.initConfig({
+
+
+
     config: config,
     pkg: grunt.file.readJSON('package.json'),
     // Task configuration.
@@ -78,8 +81,18 @@ module.exports = function(grunt) {
     },
     concurrent: {
         server: ['compass:server']
+    },
+    mochacli: {
+        options: {
+            require: ['should'],
+            reporter: 'nyan',
+            bail: true
+        },
+        all: ['test/*.js']
     }
+
   });
+
 
   // These plugins provide necessary tasks.
   grunt.loadNpmTasks('grunt-contrib-compass');
@@ -87,6 +100,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-concurrent');
   grunt.loadNpmTasks("grunt-open");
+  grunt.loadNpmTasks('grunt-mocha-cli');
+
+  // grunt.loadNpmTasks('grunt-contrib-qunit');
 
 
   // grunt.registerTask('server', function (target) {
@@ -109,5 +125,5 @@ module.exports = function(grunt) {
 
   // Default task.
   // grunt.registerTask('default', ['concurrent:server', 'connect:livereload', 'open', 'watch']);
-
+grunt.registerTask('cosito', ['mochacli']);
 };
