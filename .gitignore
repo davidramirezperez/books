@@ -1,6 +1,0 @@
-node_modules
-.DS_Store
-js/vendor
-doc
-.sass-cache
-test.html
