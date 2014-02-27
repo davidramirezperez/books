@@ -1,51 +1,115 @@
+'use strict';
+
+var LIVERELOAD_PORT = 35729;
+var lrSnippet = require('connect-livereload')({port: LIVERELOAD_PORT});
+var mountFolder = function (connect, dir) {
+    return connect.static(require('path').resolve(dir));
+};
 module.exports = function(grunt) {
-  
-  var srcFiles = 'src/**/*.js';
-  var specFiles = 'spec/**/*.js';
 
+  //show elapset time at the end
+  require('time-grunt')(grunt);
+
+ ///load tasks
+ require('load-grunt-tasks')(grunt);
+
+
+  // Project configuration.
   grunt.initConfig({
-
     pkg: grunt.file.readJSON('package.json'),
 
-    jshint: {
-      build: {
-        src: srcFiles,
-      }
-    },
-    
-    uglify: {
-      build: {
-        src: srcFiles,
-        dest: 'build/all.min.js',
+    //  Watch
+    watch:{
+       compass: {
+        files: ['app/styles/scss/{,*/}*.scss'],
+        tasks: ['compass:server']
+      },
+      livereload: {
         options: {
-          sourceMap: 'build/all.min.js.map'
-        }
-      }
-    },
-    
-    jasmine: {
-      build: {
-        src: srcFiles,
-        options: {
-          specs: specFiles
-        }
-      }
-    },
-    
-    watch: {
-      build: {
-        files: [srcFiles, specFiles],
-        tasks: ['jshint', 'jasmine', 'uglify']
+          livereload: LIVERELOAD_PORT
+        },
+        files: [
+          'app/**.html',
+          'app/styles/css/{,*/}*.css',
+          'app/styles/scss/{,*/}*.scss',
+          'app/js/{,*/}*.js',
+          'app/img/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
+        ]
       }
     },
 
+      //Compass
+    compass: {
+        options: {
+            sassDir: 'app/styles/scss',
+            cssDir: 'app/styles/css',
+            generatedImagesDir: 'app/img',
+            imagesDir: 'app/img',
+            javascriptsDir: 'app/js',
+            fontsDir: 'app/css/fonts',
+            importPath: 'app/js/vendor',
+            httpImagesPath: 'app/img',
+            httpGeneratedImagesPath: 'app/img',
+            httpFontsPath: 'app/css/fonts',
+            relativeAssets: true,
+            noLineComments: false
+        },
+        server: {
+            options: {
+              debugInfo: false
+            }
+        }
+    },
+      //Web server
+    connect: {
+      server: {
+        options: {
+          /*hostname:'localhost',*/
+          base: 'app',
+          livereload: true,
+          open:true
+          }
+        }
+      },
+      //Build
+    uglify: {
+      target: {
+        files: {
+          'app/js/main.min.js' : ['app/js/main.js']
+        }
+      }
+    },
+    cssmin : {
+      combine :{
+         files: {
+        'app/styles/css/Ribs.min.css' : ['app/styles/css/Ribs.css']
+        }
+      }
+    },
+
+    karma: {
+      unit: {
+        configFile: 'karma.conf.js'
+      }
+    },
+    mochaTest: {
+      test: {
+        options: {
+          require: ['chai'],
+          reporter: 'spec'
+        },
+        src: ['test/spec/test.spec.js']
+      }
+    }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-jasmine');
- 
-  grunt.registerTask('default', ['watch']);
-  grunt.registerTask('build', ['jshint', 'jasmine', 'uglify']);
+  // Default task(s).
+  /*grunt.registerTask('default', ['uglify']);*/
+
+  grunt.registerTask('server', ['connect', 'watch']);
+  grunt.registerTask('build', ['uglify', 'cssmin']);
+  grunt.registerTask('kar', ['karma']);
+  grunt.registerTask('test', ['mochaTest']);
+
+
 };
